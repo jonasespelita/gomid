@@ -109,3 +109,4 @@ Adds a middleware to the function.
 
 The name **Gomid** is a playful nod to Gromit from the beloved Wallace and Gromit series, symbolizing the library's role as a helpful companion in your Go projects.
 
+![gromit.png](gromit.png)
