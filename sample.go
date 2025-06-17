@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/aws/aws-lambda-go/events"
 	"github.com/jonasespelita/gomid/gomid"
 	"reflect"
 )
