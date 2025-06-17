@@ -4,12 +4,34 @@
 It provides a simple way to wrap functions with middleware, enabling pre- and post-processing of function calls. 
 Whether you're building Lambda handlers or general-purpose applications, Gomid makes it easy to manage middleware logic.
 
+Gomid implements the classic onion-like middleware pattern (FILO).
+
 ## Features
 
 - **Middleware Support**: Add `Before` and `After` hooks to your functions.
 - **Dynamic Function Wrapping**: Automatically wraps functions with middleware using reflection.
 - **Custom Middleware**: Create and integrate your own middleware implementations.
 - **Error Handling**: Supports error propagation in middleware.
+
+## Execution Order
+
+Middlewares have two phases: before and after.
+
+The before phase, happens before the handler is executed. In this code the response is not created yet, so you will have access only to the request.
+
+The after phase, happens after the handler is executed. In this code you will have access to the response.
+
+If you have three middlewares attached (as in the image above), this is the expected order of execution:
+
+- `middleware1` (before)
+- `middleware2` (before)
+- `middleware3` (before)
+- `handler`
+- `middleware3` (after)
+- `middleware2` (after)
+- `middleware1` (after)
+
+Notice that in the after phase, middlewares are executed in inverted order, this way the first handler attached is the one with the highest priority as it will be the first able to change the request and last able to modify the response before it gets sent to the user.
 
 ## Installation
 
