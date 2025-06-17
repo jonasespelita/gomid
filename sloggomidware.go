@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/jonasespelita/gomid/gomid"
 	"log/slog"
-	"middleware-go-poc/gomid"
 	"os"
 	"reflect"
 )

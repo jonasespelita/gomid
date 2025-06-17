@@ -4,9 +4,8 @@ import (
 	"context"
 	"errors"
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/jonasespelita/gomid/gomid"
 	"reflect"
-
-	"middleware-go-poc/gomid"
 )
 
 // lambda handler sigs https://docs.aws.amazon.com/lambda/latest/dg/golang-handler.html#golang-handler-signatures
