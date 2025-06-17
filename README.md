@@ -21,7 +21,7 @@ The before phase, happens before the handler is executed. In this code the respo
 
 The after phase, happens after the handler is executed. In this code you will have access to the response.
 
-If you have three middlewares attached (as in the image above), this is the expected order of execution:
+If you have three middlewares attached, this is the expected order of execution:
 
 - `middleware1` (before)
 - `middleware2` (before)
