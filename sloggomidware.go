@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/jonasespelita/gomid/gomid"
 	"log/slog"
 	"os"
@@ -17,18 +18,28 @@ func NewSlogGomidWare() gomid.GomidWare {
 	}
 }
 
-func (s SlogGomidWare) Before() func(...any) {
-	return func(in ...any) {
-		s.logger.Info("Request", "args", in)
+func (s SlogGomidWare) Before() func(...any) []any {
+	return func(in ...any) []any {
+		if len(in) > 0 {
+			for _, i := range in {
+				ctx, ok := i.(context.Context)
+				if ok {
+					s.logger.Info("Found context", "context msg", ctx.Value("message"))
+				}
+
+				s.logger.Info("Request", "arg", i)
+			}
+		}
+
+		return in
 	}
 }
 
-func (s SlogGomidWare) After() func(...any) {
-	return func(out ...any) {
+func (s SlogGomidWare) After() func(...any) []any {
+	return func(out ...any) []any {
 		if len(out) < 1 {
-			return
+			return out
 		}
-
 		r := out[0]
 
 		// if r is Ptr dereference first
@@ -46,7 +57,7 @@ func (s SlogGomidWare) After() func(...any) {
 			}
 
 		}
-
+		return out
 	}
 }
 

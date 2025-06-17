@@ -4,21 +4,21 @@ import (
 	"reflect"
 )
 
-type Gomid struct {
+type gomid struct {
 	// function
 	handler  any
 	midwares []GomidWare
 }
 
-type GomidOption func(*Gomid)
+type GomidOption func(*gomid)
 
 func New(h any, opt ...GomidOption) any {
-	gomid := &Gomid{
+	g := &gomid{
 		handler:  h,
 		midwares: make([]GomidWare, 0),
 	}
 	for _, applyOpt := range opt {
-		applyOpt(gomid)
+		applyOpt(g)
 	}
 
 	hType := reflect.TypeOf(h)
@@ -27,11 +27,12 @@ func New(h any, opt ...GomidOption) any {
 	}
 
 	var beforeMids []any
-	for _, mid := range gomid.midwares {
+	for _, mid := range g.midwares {
 		beforeMids = append(beforeMids, mid.Before())
 	}
+
 	var afterMids []any
-	for _, mid := range gomid.midwares {
+	for _, mid := range g.midwares {
 		// prepend after middle wares for FILO
 		afterMids = append([]any{mid.After()}, afterMids...)
 	}
@@ -40,18 +41,39 @@ func New(h any, opt ...GomidOption) any {
 	handlerType := reflect.TypeOf(h)
 
 	makeFunc := reflect.MakeFunc(handlerType, func(args []reflect.Value) []reflect.Value {
+
 		// call before middlewares
 		for _, mid := range beforeMids {
-
-			reflect.ValueOf(mid).Call(args)
+			preCallR := reflect.ValueOf(mid).Call(args)
+			// recreate []Value for returning from Before() call
+			if len(preCallR) > 0 {
+				returns := preCallR[0].Interface().([]any)
+				for i, a := range returns {
+					if a != nil {
+						args[i] = reflect.ValueOf(a)
+					} else {
+						args[i] = reflect.Zero(args[i].Type())
+					}
+				}
+			}
 		}
 
 		// call function itself
 		r := handlerValue.Call(args)
-
 		// call after middlewares
 		for _, mid := range afterMids {
-			reflect.ValueOf(mid).Call(r)
+			postCallR := reflect.ValueOf(mid).Call(r)
+			// recreate []Value for returning from After() call
+			if len(postCallR) > 0 {
+				returns := postCallR[0].Interface().([]any)
+				for i, a := range returns {
+					if a != nil {
+						r[i] = reflect.ValueOf(a)
+					} else {
+						r[i] = reflect.Zero(r[i].Type())
+					}
+				}
+			}
 		}
 
 		return r
@@ -61,12 +83,12 @@ func New(h any, opt ...GomidOption) any {
 }
 
 func AddMid(m GomidWare) GomidOption {
-	return func(g *Gomid) {
+	return func(g *gomid) {
 		g.midwares = append(g.midwares, m)
 	}
 }
 
 type GomidWare interface {
-	Before() func(...any)
-	After() func(...any)
+	Before() func(...any) []any
+	After() func(...any) []any
 }
