@@ -28,12 +28,12 @@ func New(h any, opt ...GomidOption) any {
 
 	var beforeMids []any
 	for _, mid := range gomid.midwares {
-
 		beforeMids = append(beforeMids, mid.Before())
 	}
 	var afterMids []any
 	for _, mid := range gomid.midwares {
-		afterMids = append(afterMids, mid.After())
+		// prepend after middle wares for FILO
+		afterMids = append([]any{mid.After()}, afterMids...)
 	}
 
 	handlerValue := reflect.ValueOf(h)
