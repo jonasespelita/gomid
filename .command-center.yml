@@ -1,0 +1,28 @@
+version: "1.0"
+service:
+  name: my-service
+  displayName: My Service
+  description: Service description
+  type: api
+  lifecycle: production
+
+team:
+  name: platform-team
+  escalationContacts:
+    - oncall@company.com
+  oncallRotation: platform-oncall
+
+repository:
+  url: https://github.com/org/my-service
+  defaultBranch: main
+  cicdPipeline: github-actions
+
+cloud:
+  provider: gcp
+  project: my-project
+  region: us-central1
+
+compliance:
+  dataClassification: internal
+  regulatoryCompliance: []
+  gdprApplicable: false
